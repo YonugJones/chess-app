@@ -1,9 +1,12 @@
 // root component, wraps RouterProvider
 
+import { RouterProvider } from 'react-router-dom'
+import { router } from './routes/router'
+
 const App = () => {
   return (
     <>
-      <h1>APP</h1>
+      <RouterProvider router={router} />
     </>
   )
 }
