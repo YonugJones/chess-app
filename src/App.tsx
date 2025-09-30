@@ -1,3 +1,5 @@
+// root component, wraps RouterProvider
+
 const App = () => {
   return (
     <>
