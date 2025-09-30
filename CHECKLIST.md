@@ -12,7 +12,7 @@ A running list of tasks to track progress on the Chess App project.
 4. [x] Add Vitest + Testing Library setup
 5. [x] Add chess icon assets
 6. [x] Install react-router-dom + setup routing
-7. [ ] Test routes
+7. [x] Test routes
 
 ---
 
