@@ -6,8 +6,8 @@ A running list of tasks to track progress on the Chess App project.
 
 ## Setup & Project Structure
 
-1. [ ] Initialize project with Vite + React + TypeScript
-2. [ ] Install and configure Tailwind CSS
+1. [x] Initialize project with Vite + React + TypeScript
+2. [x] Install and configure Tailwind CSS
 3. [ ] Set up base file structure (`src/engine`, `src/components`, `src/styles`, `src/tests`)
 4. [ ] Configure ESLint + Prettier for consistent formatting
 5. [ ] Add Vitest + Testing Library setup
