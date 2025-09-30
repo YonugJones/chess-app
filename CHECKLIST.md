@@ -9,7 +9,7 @@ A running list of tasks to track progress on the Chess App project.
 1. [x] Initialize project with Vite + React + TypeScript
 2. [x] Install and configure Tailwind CSS
 3. [x] Set up base file structure
-4. [ ] Add Vitest + Testing Library setup
+4. [x] Add Vitest + Testing Library setup
 5. [ ] Add chess icon assets
 
 ---
