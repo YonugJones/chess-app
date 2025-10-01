@@ -24,7 +24,7 @@ This project emphasizes clean architecture by separating the **chess engine logi
 - **Build Tool:** [Vite](https://vitejs.dev/)
 - **Language:** [TypeScript](https://www.typescriptlang.org/)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/)
-- **Testing:** [Vitest](https://vitest.dev/) + [Testing Library](https://testing-library.com/) for UI  
+- **Testing:** [Vitest](https://vitest.dev/) + [Testing Library](https://testing-library.com/) for UI
   &nbsp;&nbsp;&nbsp;&nbsp;Unit tests for engine logic
 
 ---
