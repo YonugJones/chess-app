@@ -1,3 +1,4 @@
+import { Link } from 'react-router-dom'
 import Header from '../components/Header'
 
 const LandingPage = () => {
@@ -17,7 +18,8 @@ const LandingPage = () => {
           I hope you enjoy using this app and please feel free to drop me a
           message
         </p>
-        <button
+        <Link
+          to='/chess'
           className='
             animate-appear delay-3000
           bg-green-600 text-white px-6 py-2 rounded-lg font-semibold
@@ -28,7 +30,7 @@ const LandingPage = () => {
           '
         >
           PLAY
-        </button>
+        </Link>
       </div>
     </div>
   )

@@ -19,7 +19,7 @@ A running list of tasks to track progress on the Chess App project.
 ## Public-Facing Pages
 
 1. [x] Add a landing page with project title and description
-2. [ ] Add a basic contact/info section (e.g., GitHub link, author name)
+2. [x] Add a basic contact/info section (e.g., GitHub link, author name)
 3. [ ] Ensure responsive layout with Tailwind
 
 ---
