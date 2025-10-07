@@ -27,7 +27,7 @@ A running list of tasks to track progress on the Chess App project.
 ## Chess Engine
 
 1. [x] Define TypeScript types for pieces, squares, moves, and game state
-2. [ ] Implement board initialization (standard chess starting position)
+2. [x] Implement board initialization (standard chess starting position)
 3. [ ] Add move generation for basic piece movement
 4. [ ] Enforce legal moves (check, checkmate, stalemate rules)
 5. [ ] Implement special rules:
