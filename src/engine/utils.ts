@@ -1,6 +1,6 @@
 import type { Rank, File, Board } from './types'
 
-// helper function to check if square has piece on it
+// helper function to check if selected square has piece on it
 export const isSquareEmpty = (
   board: Board,
   rankIndex: number,
