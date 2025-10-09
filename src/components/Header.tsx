@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom'
 
 const Header = () => {
   return (
-    <header className='h-10 p-2 sticky top-0 z-20 bg-white shadow-sm'>
+    <header className='h-10 p-2 sticky top-0 z-20 bg-gray-100 shadow-sm'>
       <div className='flex justify-between items-center'>
         <h1 className='font-bold'>CHESS</h1>
         <nav>
