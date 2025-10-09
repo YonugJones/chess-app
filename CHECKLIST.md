@@ -30,7 +30,7 @@ A running list of tasks to track progress on the Chess App project.
 2. [x] Implement board initialization (standard chess starting position)
 3. [ ] Add move generation for basic piece movement
    - [x] Pawn
-   - [ ] Rook
+   - [x] Rook
    - [ ] Bishop
    - [ ] Knight
    - [ ] Queen
