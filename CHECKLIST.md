@@ -46,8 +46,8 @@ A running list of tasks to track progress on the Chess App project.
 
 ## User Interface
 
-1. [ ] Render a responsive 8x8 chessboard with coordinates
-2. [ ] Display pieces in starting position
+1. [x] Render a responsive 8x8 chessboard
+2. [x] Display pieces in starting position
 3. [ ] Add interactivity: select piece → highlight legal moves → move piece
 4. [ ] Show move history in algebraic notation
 5. [ ] Add undo/redo functionality
