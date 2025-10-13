@@ -1,5 +1,19 @@
 // initializeBoard() lives here
 
+/**
+ *
+  (rank ↑)
+  8 | . . . . . . . .
+  7 | . . . . . . . .
+  6 | . . . . . . . .
+  5 | . . . . . . . .
+  4 | . . . . . . . .
+  3 | . . . . . . . .
+  2 | . . . . . . . .
+  1 | . . . . . . . .
+     a b c d e f g h → (file)
+ */
+
 import type { PieceType, Color, Piece, Board } from './types'
 
 // Helper function which creates the piece
