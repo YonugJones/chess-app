@@ -10,6 +10,7 @@ import { fileToIndex, rankToIndex, isValidRank, isSquareEmpty } from './utils'
 
 /**
  * Generate all legal moves for a pawn
+ * Pawns can move two squares forward if first turn, one square forward, or capture diagonally
  */
 export const getPawnMoves = (
   piece: Piece,
@@ -123,4 +124,189 @@ export const getRookMoves = (
   }
 
   return moves
+}
+
+/**
+ * Generate all legal moves for a bishop
+ * Bishops can move diagonally until blocked
+ */
+export const getBishopMoves = (
+  piece: Piece,
+  from: Square,
+  board: Board
+): Move[] => {
+  const moves: Move[] = []
+
+  // Define four possible diagonal directions
+  const directions = [
+    [1, 1], // up / right: rank + 1, file + 1
+    [1, -1], // up / left: rank + 1, file - 1
+    [-1, 1], // down / right: rank -1, file + 1
+    [-1, -1], // down / left: rank -1, file - 1
+  ] as const
+
+  const startRankIdx = rankToIndex(from.rank)
+  const startFileIdx = fileToIndex(from.file)
+
+  // Loop through each direction
+  for (const [rankDir, fileDir] of directions) {
+    let rankIdx = startRankIdx + rankDir
+    let fileIdx = startFileIdx + fileDir
+
+    // Keep moving in this direction until hitting board edge or blocked
+    while (rankIdx >= 0 && rankIdx < 8 && fileIdx >= 0 && fileIdx < 8) {
+      const target = board[rankIdx][fileIdx]
+      const rank = (8 - rankIdx) as Rank // convert rankIdx back to rank, 0 - 7 → 1 - 8
+      const file = FILES[fileIdx]
+
+      if (!target) {
+        // empty square → legal move, continue sliding
+        moves.push({ from, to: { file, rank } })
+      } else {
+        if (target.color !== piece.color) {
+          // enemy piece → capture piece then stop on that square
+          moves.push({ from, to: { file, rank } })
+        }
+        // Friendly piece or enemy piece captured → stop sliding
+        break
+      }
+      // Advance to next square in the same direction
+      rankIdx += rankDir
+      fileIdx += fileDir
+    }
+  }
+
+  return moves
+}
+
+/**
+ * Generate all legal moves for a queen
+ * queens can move like rooks or bishops
+ */
+export const getQueenMoves = (
+  piece: Piece,
+  from: Square,
+  board: Board
+): Move[] => [
+  ...getRookMoves(piece, from, board),
+  ...getBishopMoves(piece, from, board),
+]
+
+/**
+ * Generate all legal moves for a knight
+ * Knights can move in 2 then 1, or 1 then two 'L' shape steps
+ */
+export const getKnightMoves = (
+  piece: Piece,
+  from: Square,
+  board: Board
+): Move[] => {
+  const moves: Move[] = []
+
+  // Define eight possible diagonal directions
+  const directions = [
+    [2, 1], // rank + 2, file +1
+    [1, 2], // rank + 1, file + 2
+    [-1, 2], // rank - 1, file + 2
+    [-2, 1], // rank -2, file + 1
+    [-2, -1], // rank -2, file -1
+    [-1, -2], // rank -1, file -2
+    [1, -2], // rank + 1, file -2
+    [2, -1], // rank + 2, file -1
+  ] as const
+
+  const startRankIdx = rankToIndex(from.rank)
+  const startFileIdx = fileToIndex(from.file)
+
+  // Loop through each direction
+  for (const [rankDir, fileDir] of directions) {
+    const rankIdx = startRankIdx + rankDir
+    const fileIdx = startFileIdx + fileDir
+
+    // check if inside board bounds, skip out of bounds squares
+    if (rankIdx < 0 || rankIdx >= 8 || fileIdx < 0 || fileIdx >= 8) continue
+
+    const target = board[rankIdx][fileIdx]
+    const rank = (8 - rankIdx) as Rank
+    const file = FILES[fileIdx]
+
+    // empty square or enemy piece → valid move
+    if (!target || target.color !== piece.color) {
+      moves.push({ from, to: { file, rank } })
+    }
+  }
+
+  return moves
+}
+
+/**
+ * Generate all legal moves for a knight
+ * Knights can move in 2 then 1, or 1 then two 'L' shape steps
+ */
+export const getKingMoves = (
+  piece: Piece,
+  from: Square,
+  board: Board
+): Move[] => {
+  const moves: Move[] = []
+
+  // Define 8 possible directions for king
+  const directions = [
+    [1, 1], // rank + 1, file + 1
+    [0, 1], // rank + 0, file + 1
+    [-1, 1], // rank - 1, file + 1
+    [-1, 0], // rank - 1, file + 0
+    [-1, -1], // rank - 1, file - 1
+    [0, -1], // rank + 0, file - 1
+    [1, -1], // rank + 1, file - 1
+    [1, 0], // rank + 1, file + 0
+  ] as const
+
+  const startRankIdx = rankToIndex(from.rank)
+  const startFileIdx = fileToIndex(from.file)
+
+  // loop through each direction
+  for (const [rankDir, fileDir] of directions) {
+    const rankIdx = startRankIdx + rankDir
+    const fileIdx = startFileIdx + fileDir
+
+    // check if inside board bounds, skip out of bounds squares
+    if (rankIdx < 0 || rankIdx >= 8 || fileIdx < 0 || fileIdx >= 8) continue
+    const target = board[rankIdx][fileIdx]
+    const rank = (8 - rankIdx) as Rank
+    const file = FILES[fileIdx]
+
+    // empty square or piece → valid move
+    if (!target || target.color !== piece.color) {
+      moves.push({ from, to: { file, rank } })
+    }
+  }
+
+  return moves
+}
+
+/**
+ * Filter function to get moves depending on switch statement piece type
+ */
+export const getLegalMoves = (
+  piece: Piece,
+  from: Square,
+  board: Board
+): Move[] => {
+  switch (piece.type) {
+    case 'pawn':
+      return getPawnMoves(piece, from, board)
+    case 'rook':
+      return getRookMoves(piece, from, board)
+    case 'knight':
+      return getKnightMoves(piece, from, board)
+    case 'bishop':
+      return getBishopMoves(piece, from, board)
+    case 'queen':
+      return getQueenMoves(piece, from, board)
+    case 'king':
+      return getKingMoves(piece, from, board)
+    default:
+      return []
+  }
 }
