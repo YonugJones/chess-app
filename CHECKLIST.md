@@ -31,10 +31,10 @@ A running list of tasks to track progress on the Chess App project.
 3. [ ] Add move generation for basic piece movement
    - [x] Pawn
    - [x] Rook
-   - [ ] Bishop
-   - [ ] Knight
-   - [ ] Queen
-   - [ ] King
+   - [x] Bishop
+   - [x] Knight
+   - [x] Queen
+   - [x] King
 4. [ ] Enforce legal moves (check, checkmate, stalemate rules)
 5. [ ] Implement special rules:
    - [ ] Castling
