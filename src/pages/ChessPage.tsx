@@ -2,7 +2,7 @@ import { useState } from 'react'
 import Header from '../components/Header'
 import { initializeBoard } from '../engine/board'
 import { getLegalMoves } from '../engine/moves'
-import { canMoveThisTurn } from '../engine/rules'
+import { canMoveThisTurn, filterIllegalMoves } from '../engine/rules'
 import {
   FILES,
   type Board,
@@ -68,7 +68,8 @@ const ChessPage = () => {
       if (!canMoveThisTurn(piece.color, turnNumber)) return // ignore click is wrong player is trying to move
       setSelected(clickedSquare)
       const moves = getLegalMoves(piece, clickedSquare, board)
-      setLegalMoves(moves.map((move) => move.to))
+      const safeMoves = filterIllegalMoves(moves, piece, board)
+      setLegalMoves(safeMoves.map((move) => move.to))
     } else {
       // empty square click, clear selection
       setSelected(null)
