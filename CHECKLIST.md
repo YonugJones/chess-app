@@ -28,7 +28,7 @@ A running list of tasks to track progress on the Chess App project.
 
 1. [x] Define TypeScript types for pieces, squares, moves, and game state
 2. [x] Implement board initialization (standard chess starting position)
-3. [ ] Add move generation for basic piece movement
+3. [x] Add move generation for basic piece movement
    - [x] Pawn
    - [x] Rook
    - [x] Bishop

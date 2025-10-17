@@ -7,6 +7,7 @@ import {
   type File,
   type Move,
   type Piece,
+  type Square,
 } from './types'
 import { getLegalMoves } from './moves'
 import { rankToIndex, fileToIndex } from './utils'
@@ -39,6 +40,41 @@ export const filterIllegalMoves = (
   })
 }
 
+// return all legal moves for a given color
+export const getAllLegalMovesForColor = (
+  board: Board,
+  color: Color
+): Move[] => {
+  const moves: Move[] = []
+
+  for (let r = 0; r < 8; r++) {
+    for (let f = 0; f < 8; f++) {
+      const piece = board[r][f]
+      if (!piece || piece.color !== color) continue
+
+      const from: Square = { file: FILES[f], rank: (8 - r) as Rank }
+      const pieceMoves = getLegalMoves(piece, from, board)
+      const legalMoves = filterIllegalMoves(pieceMoves, piece, board)
+      moves.push(...legalMoves)
+    }
+  }
+
+  return moves
+}
+
+// function to see if there are any legal moves while the king is in check
+export const isCheckmate = (board: Board, color: Color): boolean => {
+  if (!isKingInCheck(board, color)) return false
+  const moves = getAllLegalMovesForColor(board, color)
+  return moves.length === 0
+}
+
+// function to see if there are any legal moves while the king is not in check
+export const isStalemate = (board: Board, color: Color): boolean => {
+  if (isKingInCheck(board, color)) return false
+  const moves = getAllLegalMovesForColor(board, color)
+  return moves.length === 0
+}
 // RULE: turn enforcement
 export const canMoveThisTurn = (pieceColor: Color, turnNumber: number) => {
   const isWhiteTurn = turnNumber % 2 === 1
