@@ -35,7 +35,7 @@ A running list of tasks to track progress on the Chess App project.
    - [x] Knight
    - [x] Queen
    - [x] King
-4. [ ] Enforce legal moves (check, checkmate, stalemate rules)
+4. [x] Enforce legal moves (check, checkmate, stalemate rules)
 5. [ ] Implement special rules:
    - [ ] Castling
    - [ ] En passant
