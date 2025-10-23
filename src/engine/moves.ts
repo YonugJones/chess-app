@@ -1,3 +1,4 @@
+import { isKingInCheck, simulateMove } from './rules'
 import {
   type Board,
   type Piece,
@@ -5,6 +6,7 @@ import {
   type Move,
   FILES,
   type Rank,
+  type File,
 } from './types'
 import { fileToIndex, rankToIndex, isValidRank, isSquareEmpty } from './utils'
 
@@ -240,8 +242,8 @@ export const getKnightMoves = (
 }
 
 /**
- * Generate all legal moves for a knight
- * Knights can move in 2 then 1, or 1 then two 'L' shape steps
+ * Generate all legal moves for a king
+ * Kings can move in 1 space in any direction (up down, left, right, diagonal)
  */
 export const getKingMoves = (
   piece: Piece,
@@ -252,33 +254,82 @@ export const getKingMoves = (
 
   // Define 8 possible directions for king
   const directions = [
-    [1, 1], // rank + 1, file + 1
-    [0, 1], // rank + 0, file + 1
-    [-1, 1], // rank - 1, file + 1
-    [-1, 0], // rank - 1, file + 0
-    [-1, -1], // rank - 1, file - 1
-    [0, -1], // rank + 0, file - 1
-    [1, -1], // rank + 1, file - 1
-    [1, 0], // rank + 1, file + 0
+    [1, 1],
+    [0, 1],
+    [-1, 1],
+    [-1, 0],
+    [-1, -1],
+    [0, -1],
+    [1, -1],
+    [1, 0],
   ] as const
 
   const startRankIdx = rankToIndex(from.rank)
   const startFileIdx = fileToIndex(from.file)
 
-  // loop through each direction
+  // normal king moves
   for (const [rankDir, fileDir] of directions) {
     const rankIdx = startRankIdx + rankDir
     const fileIdx = startFileIdx + fileDir
-
-    // check if inside board bounds, skip out of bounds squares
     if (rankIdx < 0 || rankIdx >= 8 || fileIdx < 0 || fileIdx >= 8) continue
+
     const target = board[rankIdx][fileIdx]
     const rank = (8 - rankIdx) as Rank
     const file = FILES[fileIdx]
 
-    // empty square or piece → valid move
     if (!target || target.color !== piece.color) {
       moves.push({ from, to: { file, rank } })
+    }
+  }
+
+  // Castling logic
+  if (!piece.hasMoved) {
+    const rank = from.rank
+    const rankIdx = rankToIndex(rank)
+    const color = piece.color
+
+    const isSquareSafe = (file: File, rank: Rank) => {
+      const simulated = simulateMove(board, { from, to: { file, rank } })
+      return !isKingInCheck(simulated, color)
+    }
+
+    // King cannot castle if in check
+    if (!isKingInCheck(board, color)) {
+      // Kingside (short castle)
+      if (
+        board[rankIdx][fileToIndex('f')] === null &&
+        board[rankIdx][fileToIndex('g')] === null
+      ) {
+        const rook = board[rankIdx][fileToIndex('h')]
+        if (
+          rook &&
+          rook.type === 'rook' &&
+          rook.color === color &&
+          !rook.hasMoved &&
+          isSquareSafe('f', rank) &&
+          isSquareSafe('g', rank)
+        ) {
+          moves.push({ from, to: { file: 'g', rank } })
+        }
+      }
+
+      // Queenside (long castle)
+      if (
+        board[rankIdx][fileToIndex('c')] === null &&
+        board[rankIdx][fileToIndex('d')] === null
+      ) {
+        const rook = board[rankIdx][fileToIndex('a')]
+        if (
+          rook &&
+          rook.type === 'rook' &&
+          rook.color === color &&
+          !rook.hasMoved &&
+          isSquareSafe('d', rank) &&
+          isSquareSafe('c', rank)
+        ) {
+          moves.push({ from, to: { file: 'c', rank } })
+        }
+      }
     }
   }
 

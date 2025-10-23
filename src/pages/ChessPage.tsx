@@ -50,9 +50,70 @@ const ChessPage = () => {
       const toRankIdx = rankToIndex(clickedSquare.rank)
       const toFileIdx = fileToIndex(clickedSquare.file)
 
-      // Move piece
+      // Move Piece
       newBoard[toRankIdx][toFileIdx] = newBoard[fromRankIdx][fromFileIdx]
       newBoard[fromRankIdx][fromFileIdx] = null
+
+      // Handle Castling
+      const movedPiece = newBoard[toRankIdx][toFileIdx]
+      if (movedPiece?.type === 'king') {
+        movedPiece.hasMoved = true
+
+        const fromFile = selected.file
+        const toFile = clickedSquare.file
+
+        // White Castling
+        if (movedPiece.color === 'white' && selected.rank === 1) {
+          // Kingside castle (e1 → g1)
+          if (fromFile === 'e' && toFile === 'g') {
+            const rookFrom = fileToIndex('h')
+            const rookTo = fileToIndex('f')
+            const rook = newBoard[rankToIndex(1)][rookFrom]
+            if (rook) {
+              newBoard[rankToIndex(1)][rookTo] = rook
+              newBoard[rankToIndex(1)][rookFrom] = null
+              rook.hasMoved = true
+            }
+          }
+          // Queenside Castling (e1 → c1)
+          else if (fromFile === 'e' && toFile === 'c') {
+            const rookFrom = fileToIndex('a')
+            const rookTo = fileToIndex('d')
+            const rook = newBoard[rankToIndex(1)][rookFrom]
+            if (rook) {
+              newBoard[rankToIndex(1)][rookTo] = rook
+              newBoard[rankToIndex(1)][rookFrom] = null
+              rook.hasMoved = true
+            }
+          }
+        }
+
+        // Black Castling
+        if (movedPiece.color === 'black' && selected.rank === 8) {
+          // Kingside castle (e8 → g8)
+          if (fromFile === 'e' && toFile === 'g') {
+            const rookFrom = fileToIndex('h')
+            const rookTo = fileToIndex('f')
+            const rook = newBoard[rankToIndex(8)][rookFrom]
+            if (rook) {
+              newBoard[rankToIndex(8)][rookTo] = rook
+              newBoard[rankToIndex(8)][rookFrom] = null
+              rook.hasMoved = true
+            }
+          }
+          // Queenside Castling (e8 → c8)
+          else if (fromFile === 'e' && toFile === 'c') {
+            const rookFrom = fileToIndex('a')
+            const rookTo = fileToIndex('d')
+            const rook = newBoard[rankToIndex(8)][rookFrom]
+            if (rook) {
+              newBoard[rankToIndex(8)][rookTo] = rook
+              newBoard[rankToIndex(8)][rookFrom] = null
+              rook.hasMoved = true
+            }
+          }
+        }
+      }
 
       // update board + turn
       setBoard(newBoard)

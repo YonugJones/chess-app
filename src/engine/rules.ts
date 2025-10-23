@@ -4,7 +4,6 @@ import {
   type Board,
   type Color,
   type Rank,
-  type File,
   type Move,
   type Piece,
   type Square,
@@ -13,7 +12,7 @@ import { getLegalMoves } from './moves'
 import { rankToIndex, fileToIndex } from './utils'
 
 // HELPER FUNCTION: create a deep copy of the board and apply a move
-const simulateMove = (board: Board, move: Move): Board => {
+export const simulateMove = (board: Board, move: Move): Board => {
   const newBoard = board.map((row) => [...row])
 
   const fromRankIdx = rankToIndex(move.from.rank)
@@ -86,7 +85,7 @@ export const canMoveThisTurn = (pieceColor: Color, turnNumber: number) => {
 
 // RULE: checks
 export const isKingInCheck = (board: Board, color: Color): boolean => {
-  let kingSquare: { file: File; rank: Rank } | null = null
+  let kingSquare: Square | null = null
 
   // Find the king
   for (let r = 0; r < 8; r++) {
@@ -104,20 +103,35 @@ export const isKingInCheck = (board: Board, color: Color): boolean => {
 
   const opponentColor = color === 'white' ? 'black' : 'white'
 
-  // Check if any oppenent piece attacks the king
+  // Check if any opponent piece attacks the king
   for (let r = 0; r < 8; r++) {
     for (let f = 0; f < 8; f++) {
       const piece = board[r][f]
       if (!piece || piece.color !== opponentColor) continue
 
-      const from = { file: FILES[f], rank: (8 - r) as Rank }
+      const from: Square = { file: FILES[f], rank: (8 - r) as Rank }
+
+      // ♔ Special case: enemy king — handle manually to prevent recursion
+      if (piece.type === 'king') {
+        const rankDiff = Math.abs(from.rank - kingSquare.rank)
+        const fileDiff = Math.abs(
+          fileToIndex(from.file) - fileToIndex(kingSquare.file)
+        )
+        if (rankDiff <= 1 && fileDiff <= 1) {
+          return true // enemy king is adjacent — attack!
+        }
+        continue
+      }
+
+      // For all other pieces, use getLegalMoves safely
       const moves = getLegalMoves(piece, from, board)
       if (
         moves.some(
           (m) => m.to.file === kingSquare.file && m.to.rank === kingSquare.rank
         )
-      )
+      ) {
         return true
+      }
     }
   }
 
