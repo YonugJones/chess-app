@@ -17,7 +17,8 @@ import { fileToIndex, rankToIndex, isValidRank, isSquareEmpty } from './utils'
 export const getPawnMoves = (
   piece: Piece,
   from: Square,
-  board: Board
+  board: Board,
+  lastMove?: Move | null
 ): Move[] => {
   const moves: Move[] = []
 
@@ -67,6 +68,38 @@ export const getPawnMoves = (
             rank: oneStep,
           },
         })
+      }
+    }
+  }
+
+  // En passant capture
+  if (lastMove) {
+    const lastMovedPiece =
+      board[rankToIndex(lastMove.to.rank)][fileToIndex(lastMove.to.file)]
+
+    // Must have been an opposing pawn that two stepped
+    if (
+      lastMovedPiece &&
+      lastMovedPiece.type === 'pawn' &&
+      lastMovedPiece.color !== piece.color &&
+      Math.abs(lastMove.from.rank - lastMove.to.rank) === 2
+    ) {
+      const lastToFileIdx = fileToIndex(lastMove.to.file)
+      const fromFileIdx = fileToIndex(from.file)
+
+      // Check if this pawn is adjacent to that pawn
+      if (
+        Math.abs(lastToFileIdx - fromFileIdx) === 1 &&
+        from.rank === lastMove.to.rank
+      ) {
+        // En passant capture square (behind the pawn that two-stepped)
+        const captureRank = from.rank + (piece.color === 'white' ? 1 : -1)
+        if (isValidRank(captureRank)) {
+          moves.push({
+            from,
+            to: { file: lastMove.to.file, rank: captureRank },
+          })
+        }
       }
     }
   }
@@ -342,11 +375,12 @@ export const getKingMoves = (
 export const getLegalMoves = (
   piece: Piece,
   from: Square,
-  board: Board
+  board: Board,
+  lastMove?: Move | null
 ): Move[] => {
   switch (piece.type) {
     case 'pawn':
-      return getPawnMoves(piece, from, board)
+      return getPawnMoves(piece, from, board, lastMove)
     case 'rook':
       return getRookMoves(piece, from, board)
     case 'knight':
