@@ -36,10 +36,10 @@ A running list of tasks to track progress on the Chess App project.
    - [x] Queen
    - [x] King
 4. [x] Enforce legal moves (check, checkmate, stalemate rules)
-5. [ ] Implement special rules:
+5. [x] Implement special rules:
    - [x] Castling
    - [x] En passant
-   - [ ] Pawn promotion
+   - [x] Pawn promotion
 6. [ ] Write unit tests for all engine logic
 
 ---

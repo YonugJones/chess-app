@@ -17,9 +17,12 @@ import {
   type Rank,
   type Color,
   type Move,
+  type PieceType,
 } from '../engine/types'
 import { pieceImages } from '../utils/pieceImages'
 import { fileToIndex, isValidRank, rankToIndex } from '../engine/utils'
+
+const PROMOTION_CHOICES: PieceType[] = ['queen', 'rook', 'bishop', 'knight']
 
 const ChessPage = () => {
   const [board, setBoard] = useState<Board>(initializeBoard())
@@ -28,10 +31,37 @@ const ChessPage = () => {
   const [turnNumber, setTurnNumber] = useState(1)
   const [lastMove, setLastMove] = useState<Move | null>(null)
 
+  // promotionPending holds the square where a pawn just landed and needs promotion
+  const [promotionPending, setPromotionPending] = useState<{
+    square: Square
+    color: Color
+  } | null>(null)
+
   const currentColor: Color = turnNumber % 2 === 1 ? 'white' : 'black'
   const isInCheck = isKingInCheck(board, currentColor)
 
+  const finalizeAfterMove = (newBoard: Board, from: Square, to: Square) => {
+    setBoard(newBoard)
+    setSelected(null)
+    setLegalMoves([])
+    setTurnNumber((prev) => prev + 1)
+    setLastMove({ from, to })
+
+    // after state update checks (use local nextColor based on turnNumber)
+    const nextColor: Color = (turnNumber + 1) % 2 === 1 ? 'white' : 'black'
+    if (isCheckmate(newBoard, nextColor)) {
+      alert(`${nextColor} is in checkmate!`)
+    } else if (isStalemate(newBoard, nextColor)) {
+      alert('Stalemate! Draw.')
+    } else if (isKingInCheck(newBoard, nextColor)) {
+      alert(`${nextColor} is in check!`)
+    }
+  }
+
   const handleSquareClick = (rowIdx: number, colIdx: number) => {
+    // if a promotion is pending, ignore board clicks until user selects promotion piece
+    if (promotionPending) return
+
     const clickedSquare: Square = {
       file: FILES[colIdx],
       rank: (8 - rowIdx) as Rank,
@@ -57,7 +87,7 @@ const ChessPage = () => {
       newBoard[fromRankIdx][fromFileIdx] = null
 
       const movedPiece = newBoard[toRankIdx][toFileIdx]
-      if (movedPiece) movedPiece.hasMoved = true // Mark all moved pieces
+      if (movedPiece) movedPiece.hasMoved = true // Mark moved piece
 
       // --- En Passant ---
       if (movedPiece?.type === 'pawn') {
@@ -80,17 +110,6 @@ const ChessPage = () => {
             const captureIdx = rankToIndex(captureRank)
             const captureFileIdx = fileToIndex(clickedSquare.file)
             newBoard[captureIdx][captureFileIdx] = null
-          }
-        }
-
-        // --- Pawn Promotion ---
-        const promotionRank = movedPiece.color === 'white' ? 8 : 1
-        if (clickedSquare.rank === promotionRank) {
-          // Auto-promote to queen (you can later replace this with a modal)
-          newBoard[toRankIdx][toFileIdx] = {
-            type: 'queen',
-            color: movedPiece.color,
-            hasMoved: true,
           }
         }
       }
@@ -153,24 +172,23 @@ const ChessPage = () => {
         }
       }
 
-      // Update state
-      setBoard(newBoard)
-      setSelected(null)
-      setLegalMoves([])
-      setTurnNumber((prev) => prev + 1)
-      setLastMove({ from: selected, to: clickedSquare })
-
-      // --- Check, Checkmate, and Stalemate ---
-      const nextColor: Color = (turnNumber + 1) % 2 === 1 ? 'white' : 'black'
-
-      if (isCheckmate(newBoard, nextColor)) {
-        alert(`${nextColor} is in checkmate!`)
-      } else if (isStalemate(newBoard, nextColor)) {
-        alert('Stalemate! Draw.')
-      } else if (isKingInCheck(newBoard, nextColor)) {
-        alert(`${nextColor} is in check!`)
+      // --- Pawn Promotion detection ---
+      if (movedPiece?.type === 'pawn') {
+        const promotionRank = movedPiece.color === 'white' ? 8 : 1
+        if (clickedSquare.rank === promotionRank) {
+          // place pawn at destination and wait for player's choice
+          setBoard(newBoard)
+          setPromotionPending({
+            square: clickedSquare,
+            color: movedPiece.color,
+          })
+          // DON'T finalize turn until player picks promotion piece
+          return
+        }
       }
 
+      // If no promotion pending, finalize the move immediately
+      finalizeAfterMove(newBoard, selected, clickedSquare)
       return
     }
 
@@ -205,6 +223,26 @@ const ChessPage = () => {
     setLegalMoves([])
   }
 
+  // Player picked promotion piece from modal
+  const handlePromotionPick = (choice: PieceType) => {
+    if (!promotionPending) return
+    const { square, color } = promotionPending
+    const newBoard = board.map((row) => [...row])
+    const rIdx = rankToIndex(square.rank)
+    const fIdx = fileToIndex(square.file)
+
+    // Replace pawn with chosen piece and mark hasMoved
+    newBoard[rIdx][fIdx] = { type: choice, color, hasMoved: true }
+    // finalize move: previous "from" is lastMove?.from — use lastMove if available,
+    // otherwise we don't have the exact from saved in this path. We'll use lastMove if set.
+    const from = lastMove?.from ?? { file: 'a', rank: 1 } // fallback (shouldn't happen)
+    const to = square
+
+    // clear promotion pending then finalize
+    setPromotionPending(null)
+    finalizeAfterMove(newBoard, from, to)
+  }
+
   const isSquareLegalMove = (rank: Rank, file: string) =>
     legalMoves.some((move) => move.rank === rank && move.file === file)
 
@@ -215,7 +253,7 @@ const ChessPage = () => {
     <div className='min-h-screen flex flex-col bg-gray-100'>
       <Header />
       <div className='flex-1 flex items-center justify-center p-4'>
-        <div className='grid grid-cols-8 grid-rows-8 w-full max-w-[424px] aspect-square border'>
+        <div className='grid grid-cols-8 grid-rows-8 w-full max-w-[424px] aspect-square border relative'>
           {board.map((row, rowIdx) =>
             row.map((piece: Piece | null, colIdx) => {
               const file = FILES[colIdx]
@@ -258,6 +296,36 @@ const ChessPage = () => {
                 </div>
               )
             })
+          )}
+
+          {/* Promotion modal/overlay */}
+          {promotionPending && (
+            <div className='absolute inset-0 flex items-center justify-center bg-black/30'>
+              <div className='bg-white rounded p-4 shadow-lg'>
+                <div className='mb-2 text-center font-semibold'>
+                  Promote pawn to:
+                </div>
+                <div className='flex gap-2'>
+                  {PROMOTION_CHOICES.map((choice) => (
+                    <button
+                      key={choice}
+                      onClick={() => handlePromotionPick(choice)}
+                      className='px-3 py-2 border rounded hover:bg-gray-100'
+                    >
+                      {/* small image + label */}
+                      <div className='flex flex-col items-center'>
+                        <img
+                          src={pieceImages[promotionPending.color][choice]}
+                          alt={choice}
+                          className='w-8 h-8'
+                        />
+                        <span className='text-xs'>{choice}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
           )}
         </div>
       </div>
